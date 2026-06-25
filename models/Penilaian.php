@@ -34,10 +34,11 @@ class Penilaian {
     }
 
     public function upsert(array $data): bool {
+        // Gunakan VALUES() alias untuk hindari duplikat named param di PDO
         $stmt = $this->db->prepare(
             'INSERT INTO penilaian (kelompok_id, dosen_id, nilai, feedback)
              VALUES (:kelompok_id, :dosen_id, :nilai, :feedback)
-             ON DUPLICATE KEY UPDATE nilai=:nilai, feedback=:feedback, updated_at=NOW()'
+             ON DUPLICATE KEY UPDATE nilai = VALUES(nilai), feedback = VALUES(feedback), updated_at = NOW()'
         );
         return $stmt->execute([
             ':kelompok_id' => $data['kelompok_id'],

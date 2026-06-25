@@ -1,6 +1,9 @@
 <?php
 /* =============================================
    SMPM — View: Dashboard Admin
+   Variabel dari DashboardController::dataAdmin():
+   $user, $users, $kelompokList, $uploads,
+   $tugasList, $penilaianList, $totalMhs, $totalDosen
    ============================================= */
 $pageTitle = 'Dashboard';
 require_once __DIR__ . '/../layout/header.php';
@@ -11,7 +14,7 @@ require_once __DIR__ . '/../layout/sidebar.php';
   <div class="page-body">
 
     <div class="page-header">
-      <h1>Selamat Datang, <?= htmlspecialchars($data['user']['nama']) ?> 👋</h1>
+      <h1>Selamat Datang, <?= htmlspecialchars($user['nama']) ?> 👋</h1>
       <p>Panel Administrator — Kelola seluruh data sistem.</p>
     </div>
 
@@ -19,19 +22,19 @@ require_once __DIR__ . '/../layout/sidebar.php';
     <div class="stat-grid">
       <div class="stat-card">
         <div class="stat-label">Mahasiswa</div>
-        <div class="stat-value"><?= $data['totalMhs'] ?></div>
+        <div class="stat-value"><?= $totalMhs ?></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Dosen</div>
-        <div class="stat-value"><?= $data['totalDosen'] ?></div>
+        <div class="stat-value"><?= $totalDosen ?></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Kelompok</div>
-        <div class="stat-value"><?= count($data['kelompokList']) ?></div>
+        <div class="stat-value"><?= count($kelompokList) ?></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Total Upload</div>
-        <div class="stat-value"><?= count($data['uploads']) ?></div>
+        <div class="stat-value"><?= count($uploads) ?></div>
       </div>
     </div>
 
@@ -47,27 +50,25 @@ require_once __DIR__ . '/../layout/sidebar.php';
             <tr><th>Nama</th><th>Email</th><th>Role</th></tr>
           </thead>
           <tbody>
-            <?php foreach ($data['users'] as $u): ?>
+            <?php foreach ($users as $u): ?>
             <tr>
               <td>
                 <div class="flex items-center gap-8">
                   <div class="avatar" style="width:28px;height:28px;font-size:.7rem">
-                    <?= htmlspecialchars($u['avatar']) ?>
+                    <?= htmlspecialchars($u['avatar'] ?? '--') ?>
                   </div>
                   <?= htmlspecialchars($u['nama']) ?>
                 </div>
               </td>
               <td class="text-muted text-sm"><?= htmlspecialchars($u['email']) ?></td>
               <td>
-                <?php
-                $badgeClass = match($u['role']) {
+                <?php $bc = match($u['role']) {
                     'admin'     => 'badge-red',
                     'dosen'     => 'badge-amber',
                     'mahasiswa' => 'badge-blue',
                     default     => 'badge-navy',
-                };
-                ?>
-                <span class="badge <?= $badgeClass ?>"><?= ucfirst($u['role']) ?></span>
+                }; ?>
+                <span class="badge <?= $bc ?>"><?= ucfirst($u['role']) ?></span>
               </td>
             </tr>
             <?php endforeach; ?>
@@ -88,7 +89,7 @@ require_once __DIR__ . '/../layout/sidebar.php';
             <tr><th>Kelompok</th><th>Tema</th><th>Dosen</th><th>Progress</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <?php foreach ($data['kelompokList'] as $k): ?>
+            <?php foreach ($kelompokList as $k): ?>
             <tr>
               <td><strong><?= htmlspecialchars($k['nama']) ?></strong></td>
               <td class="text-muted text-sm"><?= htmlspecialchars($k['tema']) ?></td>
@@ -96,8 +97,8 @@ require_once __DIR__ . '/../layout/sidebar.php';
               <td style="min-width:140px">
                 <div class="flex items-center gap-8">
                   <div class="progress-wrap" style="flex:1">
-                    <div class="progress-fill <?= $k['progress'] >= 70 ? 'progress-green' : ($k['progress'] >= 40 ? 'progress-blue' : 'progress-amber') ?>"
-                         style="width:<?= $k['progress'] ?>%"></div>
+                    <?php $pc = $k['progress'] >= 70 ? 'progress-green' : ($k['progress'] >= 40 ? 'progress-blue' : 'progress-amber'); ?>
+                    <div class="progress-fill <?= $pc ?>" style="width:<?= $k['progress'] ?>%"></div>
                   </div>
                   <span class="text-sm font-600"><?= $k['progress'] ?>%</span>
                 </div>
@@ -114,7 +115,7 @@ require_once __DIR__ . '/../layout/sidebar.php';
       </div>
     </div>
 
-  </div><!-- /page-body -->
-</div><!-- /main-content -->
+  </div>
+</div>
 
 <?php require_once __DIR__ . '/../layout/footer.php'; ?>

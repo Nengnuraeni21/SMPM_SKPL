@@ -29,18 +29,21 @@ class DashboardController {
         $this->requireLogin();
         $user = $_SESSION['user'];
         $role = $user['role'];
-        $data = ['user' => $user];
 
         if ($role === 'mahasiswa') {
-            $data = array_merge($data, $this->dataMahasiswa($user));
+            // Extract semua variabel ke scope lokal agar view bisa akses langsung
+            $data = $this->dataMahasiswa($user);
+            extract($data);
             require_once __DIR__ . '/../views/dashboard/mahasiswa.php';
 
         } elseif ($role === 'dosen') {
-            $data = array_merge($data, $this->dataDosen());
+            $data = $this->dataDosen();
+            extract($data);
             require_once __DIR__ . '/../views/dashboard/dosen.php';
 
         } elseif ($role === 'admin') {
-            $data = array_merge($data, $this->dataAdmin());
+            $data = $this->dataAdmin();
+            extract($data);
             require_once __DIR__ . '/../views/dashboard/admin.php';
         }
     }
@@ -60,29 +63,31 @@ class DashboardController {
         $pending   = count(array_filter($tugasList, fn($t) => $t['status'] === 'pending'));
         $total     = count($tugasList);
         $completion = $total > 0 ? round(($selesai / $total) * 100) : 0;
-
-        return compact('tugasList', 'kelompok', 'anggota', 'uploads', 'penilaian',
+        // user juga di-include agar view bisa akses $user
+        return compact('user', 'tugasList', 'kelompok', 'anggota', 'uploads', 'penilaian',
                        'selesai', 'proses', 'terlambat', 'pending', 'total', 'completion');
     }
 
     private function dataDosen(): array {
+        $user         = $_SESSION['user'];
         $kelompokList = $this->kelompokModel->getAll();
         $uploads      = $this->uploadModel->getAll();
         $tugasList    = $this->tugasModel->getAllWithKelompok();
-        return compact('kelompokList', 'uploads', 'tugasList');
+        return compact('user', 'kelompokList', 'uploads', 'tugasList');
     }
 
     private function dataAdmin(): array {
-        $users        = $this->userModel->getAll();
-        $kelompokList = $this->kelompokModel->getAll();
-        $uploads      = $this->uploadModel->getAll();
-        $tugasList    = $this->tugasModel->getAllWithKelompok();
+        $user          = $_SESSION['user'];
+        $users         = $this->userModel->getAll();
+        $kelompokList  = $this->kelompokModel->getAll();
+        $uploads       = $this->uploadModel->getAll();
+        $tugasList     = $this->tugasModel->getAllWithKelompok();
         $penilaianList = $this->penilaianModel->getAll();
 
         $totalMhs   = count(array_filter($users, fn($u) => $u['role'] === 'mahasiswa'));
         $totalDosen = count(array_filter($users, fn($u) => $u['role'] === 'dosen'));
 
-        return compact('users', 'kelompokList', 'uploads', 'tugasList',
+        return compact('user', 'users', 'kelompokList', 'uploads', 'tugasList',
                        'penilaianList', 'totalMhs', 'totalDosen');
     }
 
