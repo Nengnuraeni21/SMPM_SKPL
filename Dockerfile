@@ -1,5 +1,7 @@
 FROM php:8.2-apache
 
+RUN echo "SMPM DOCKERFILE BARU"
+
 RUN a2dismod mpm_event mpm_worker mpm_prefork || true
 RUN a2enmod mpm_prefork rewrite
 
